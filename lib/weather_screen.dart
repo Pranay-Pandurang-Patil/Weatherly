@@ -20,6 +20,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   String cityName = 'Mumbai';
 
+  final TextEditingController searchController =
+  TextEditingController();
+
   /// 🌙 NIGHT = 8 PM → 4 AM
   bool isNightByTime(DateTime time) {
     final hour = time.hour;
@@ -76,11 +79,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ),
         ],
       ),
-
       body: FutureBuilder(
         future: weather,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator.adaptive(),
             );
@@ -98,9 +101,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           final currentWeatherData = data['list'][0];
 
-          final currentTemp = currentWeatherData['main']['temp'];
+          final currentTemp =
+          currentWeatherData['main']['temp'];
 
-          final currentSky = currentWeatherData['weather'][0]['main'];
+          final currentSky =
+          currentWeatherData['weather'][0]['main'];
 
           final currentTime = DateTime.now();
 
@@ -115,7 +120,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           final currentWindSpeed =
           currentWeatherData['wind']['speed'];
 
-          /// 🌤 CURRENT WEATHER ICON (TIME-BASED)
+          /// 🌤 CURRENT WEATHER ICON
           IconData weatherIcon;
 
           if (currentSky == 'Clouds') {
@@ -132,18 +137,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 /// 🔎 SEARCH CITY
                 TextField(
+                  controller: searchController,
                   decoration: const InputDecoration(
                     hintText: 'Search city',
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                   ),
+                  onSubmitted: (value) {
+                    if (value.trim().isEmpty) {
+                      return;
+                    }
+
+                    setState(() {
+                      cityName = value.trim();
+                      weather = getCurrentweather();
+                    });
+                  },
                 ),
 
                 const SizedBox(height: 16),
@@ -151,31 +165,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// 🌡️ CURRENT WEATHER
                 SizedBox(
                   width: double.infinity,
-
                   child: Card(
                     elevation: 10,
-
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-
                       child: BackdropFilter(
                         filter: ImageFilter.blur(
                           sigmaX: 10,
                           sigmaY: 10,
                         ),
-
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-
                           child: Column(
                             children: [
                               Text(
                                 '$currentTemp',
-
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -193,7 +200,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                               Text(
                                 currentSky,
-
                                 style: const TextStyle(
                                   fontSize: 20,
                                 ),
@@ -211,7 +217,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// 🕐 HOURLY FORECAST
                 const Text(
                   'Hourly Forecast',
-
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -222,12 +227,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                 SizedBox(
                   height: 120,
-
                   child: ListView.builder(
                     itemCount: 5,
-
                     scrollDirection: Axis.horizontal,
-
                     itemBuilder: (context, index) {
                       final hourlyForecast =
                       data['list'][index + 1];
@@ -259,11 +261,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                       return HourlyForecastItem(
                         time: DateFormat.jm().format(time),
-
                         temperature:
                         hourlyForecast['main']['temp']
                             .toString(),
-
                         icon: hourlyIcon,
                       );
                     },
@@ -275,7 +275,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// ℹ️ ADDITIONAL INFORMATION
                 const Text(
                   'Additional Information',
-
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -287,29 +286,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 Row(
                   mainAxisAlignment:
                   MainAxisAlignment.spaceAround,
-
                   children: [
                     Addinfo(
                       icon: Icons.water_drop,
-
                       label: 'Humidity',
-
                       value: '$currentHumidity %',
                     ),
 
                     Addinfo(
                       icon: Icons.air,
-
                       label: 'Wind Speed',
-
                       value: '$currentWindSpeed m/s',
                     ),
 
                     Addinfo(
                       icon: Icons.beach_access,
-
                       label: 'Pressure',
-
                       value: '$currentPressure hPa',
                     ),
                   ],
@@ -320,5 +312,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }
