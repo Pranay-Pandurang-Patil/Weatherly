@@ -20,8 +20,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   String cityName = 'Mumbai';
 
-  final TextEditingController searchController =
-  TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   /// 🌙 NIGHT = 8 PM → 4 AM
   bool isNightByTime(DateTime time) {
@@ -34,14 +33,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
       final res = await http.get(
         Uri.parse(
           'https://api.openweathermap.org/data/2.5/forecast'
-              '?q=$cityName&APPID=$openweather',
+          '?q=$cityName&APPID=$openweather&units=metric',
         ),
       );
 
       final data = jsonDecode(res.body);
 
       if (data['cod'] != '200') {
-        throw 'An unexpected error occured';
+        throw data['message'] ?? 'Unable to fetch weather';
       }
 
       return data;
@@ -63,9 +62,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       appBar: AppBar(
         title: const Text(
           'Weather App',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         actions: [
@@ -82,43 +79,31 @@ class _WeatherScreenState extends State<WeatherScreen> {
       body: FutureBuilder(
         future: weather,
         builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                snapshot.error.toString(),
-              ),
-            );
+            return Center(child: Text(snapshot.error.toString()));
           }
 
           final data = snapshot.data!;
 
           final currentWeatherData = data['list'][0];
 
-          final currentTemp =
-          currentWeatherData['main']['temp'];
+          final currentTemp = currentWeatherData['main']['temp'];
 
-          final currentSky =
-          currentWeatherData['weather'][0]['main'];
+          final currentSky = currentWeatherData['weather'][0]['main'];
 
           final currentTime = DateTime.now();
 
           final isNight = isNightByTime(currentTime);
 
-          final currentPressure =
-          currentWeatherData['main']['pressure'];
+          final currentPressure = currentWeatherData['main']['pressure'];
 
-          final currentHumidity =
-          currentWeatherData['main']['humidity'];
+          final currentHumidity = currentWeatherData['main']['humidity'];
 
-          final currentWindSpeed =
-          currentWeatherData['wind']['speed'];
+          final currentWindSpeed = currentWeatherData['wind']['speed'];
 
           /// 🌤 CURRENT WEATHER ICON
           IconData weatherIcon;
@@ -162,6 +147,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                 const SizedBox(height: 16),
 
+                Text(
+                  cityName,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
                 /// 🌡️ CURRENT WEATHER
                 SizedBox(
                   width: double.infinity,
@@ -173,16 +168,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 10,
-                          sigmaY: 10,
-                        ),
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
                               Text(
-                                '$currentTemp',
+                                '${currentTemp.round()}°C',
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -191,18 +183,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                               const SizedBox(height: 10),
 
-                              Icon(
-                                weatherIcon,
-                                size: 64,
-                              ),
+                              Icon(weatherIcon, size: 64),
 
                               const SizedBox(height: 10),
 
                               Text(
                                 currentSky,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                ),
+                                style: const TextStyle(fontSize: 20),
                               ),
                             ],
                           ),
@@ -217,10 +204,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// 🕐 HOURLY FORECAST
                 const Text(
                   'Hourly Forecast',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 8),
@@ -231,18 +215,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     itemCount: 5,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
-                      final hourlyForecast =
-                      data['list'][index + 1];
+                      final hourlyForecast = data['list'][index + 1];
 
-                      final time = DateTime.parse(
-                        hourlyForecast['dt_txt'],
-                      );
+                      final time = DateTime.parse(hourlyForecast['dt_txt']);
 
-                      final sky =
-                      hourlyForecast['weather'][0]['main'];
+                      final sky = hourlyForecast['weather'][0]['main'];
 
-                      final isNight =
-                      isNightByTime(time);
+                      final isNight = isNightByTime(time);
 
                       IconData hourlyIcon;
 
@@ -251,8 +230,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       } else if (sky == 'Rain') {
                         hourlyIcon = Icons.beach_access;
                       } else if (sky == 'Clear' && isNight) {
-                        hourlyIcon =
-                            Icons.nightlight_round;
+                        hourlyIcon = Icons.nightlight_round;
                       } else if (sky == 'Clear') {
                         hourlyIcon = Icons.wb_sunny;
                       } else {
@@ -262,8 +240,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       return HourlyForecastItem(
                         time: DateFormat.jm().format(time),
                         temperature:
-                        hourlyForecast['main']['temp']
-                            .toString(),
+                        '${hourlyForecast['main']['temp'].round()}°C',
                         icon: hourlyIcon,
                       );
                     },
@@ -275,17 +252,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// ℹ️ ADDITIONAL INFORMATION
                 const Text(
                   'Additional Information',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 8),
 
                 Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Addinfo(
                       icon: Icons.water_drop,
