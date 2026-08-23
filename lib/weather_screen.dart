@@ -84,11 +84,50 @@ class _WeatherScreenState extends State<WeatherScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.cloud_off,
+                    size: 64,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'Unable to load weather',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    snapshot.error.toString(),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        weather = getCurrentweather();
+                      });
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Try Again'),
+                  ),
+                ],
+              ),
+            );
           }
-
           final data = snapshot.data!;
-
+          final locationName = data['city']['name'];
+          final countryCode = data['city']['country'];
           final currentWeatherData = data['list'][0];
 
           final currentTemp = currentWeatherData['main']['temp'];
@@ -128,10 +167,28 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 /// 🔎 SEARCH CITY
                 TextField(
                   controller: searchController,
-                  decoration: const InputDecoration(
+                  textInputAction: TextInputAction.search,
+                  decoration: InputDecoration(
                     hintText: 'Search city',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.arrow_forward),
+                      onPressed: () {
+                        final value = searchController.text.trim();
+
+                        if (value.isEmpty) {
+                          return;
+                        }
+
+                        setState(() {
+                          cityName = value;
+                          weather = getCurrentweather();
+                        });
+
+                        searchController.clear();
+                      },
+                    ),
+                    border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (value) {
                     if (value.trim().isEmpty) {
@@ -142,19 +199,20 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       cityName = value.trim();
                       weather = getCurrentweather();
                     });
+
+                    searchController.clear();
                   },
                 ),
 
                 const SizedBox(height: 16),
 
                 Text(
-                  cityName,
+                  '$locationName, $countryCode',
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 12),
 
                 /// 🌡️ CURRENT WEATHER
