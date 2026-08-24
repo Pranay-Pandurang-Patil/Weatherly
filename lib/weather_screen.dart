@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:weatherapp/addinfo.dart';
 import 'package:weatherapp/hourinfo.dart';
@@ -27,6 +27,58 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final hour = time.hour;
     return hour >= 20 || hour < 4;
   }
+  Future<Position> getCurrentLocation() async {
+    bool serviceEnabled =
+    await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      throw 'Location services are disabled.';
+    }
+
+    LocationPermission permission =
+    await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+
+      if (permission == LocationPermission.denied) {
+        throw 'Location permission denied.';
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw 'Location permission permanently denied.';
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<Map<String, dynamic>> getWeatherByLocation() async {
+    try {
+      final position = await getCurrentLocation();
+
+      final res = await http.get(
+        Uri.parse(
+          'https://api.openweathermap.org/data/2.5/forecast'
+              '?lat=${position.latitude}'
+              '&lon=${position.longitude}'
+              '&APPID=$openweather'
+              '&units=metric',
+        ),
+      );
+
+      final data = jsonDecode(res.body);
+
+      if (data['cod'] != '200') {
+        throw data['message'] ?? 'Unable to fetch weather';
+      }
+
+      return data;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
 
   Future<Map<String, dynamic>> getCurrentweather() async {
     try {
@@ -165,43 +217,44 @@ class _WeatherScreenState extends State<WeatherScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// 🔎 SEARCH CITY
-                TextField(
-                  controller: searchController,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    hintText: 'Search city',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.arrow_forward),
-                      onPressed: () {
-                        final value = searchController.text.trim();
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: searchController,
+                        textInputAction: TextInputAction.search,
+                        decoration: const InputDecoration(
+                          hintText: 'Search city',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (value) {
+                          if (value.trim().isEmpty) {
+                            return;
+                          }
 
-                        if (value.isEmpty) {
-                          return;
-                        }
+                          setState(() {
+                            cityName = value.trim();
+                            weather = getCurrentweather();
+                          });
 
-                        setState(() {
-                          cityName = value;
-                          weather = getCurrentweather();
-                        });
-
-                        searchController.clear();
-                      },
+                          searchController.clear();
+                        },
+                      ),
                     ),
-                    border: const OutlineInputBorder(),
-                  ),
-                  onSubmitted: (value) {
-                    if (value.trim().isEmpty) {
-                      return;
-                    }
 
-                    setState(() {
-                      cityName = value.trim();
-                      weather = getCurrentweather();
-                    });
+                    const SizedBox(width: 8),
 
-                    searchController.clear();
-                  },
+                    IconButton(
+                      tooltip: 'Use my location',
+                      onPressed: () {
+                        setState(() {
+                          weather = getWeatherByLocation();
+                        });
+                      },
+                      icon: const Icon(Icons.my_location),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
