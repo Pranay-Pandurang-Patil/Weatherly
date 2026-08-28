@@ -22,6 +22,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   String cityName = 'Mumbai';
 
+  bool usingCurrentLocation = false;
+
   final TextEditingController searchController =
   TextEditingController();
 
@@ -29,6 +31,35 @@ class _WeatherScreenState extends State<WeatherScreen> {
   bool isNightByTime(DateTime time) {
     final hour = time.hour;
     return hour >= 20 || hour < 4;
+  }
+
+  /// 🌤 WEATHER ICON
+  IconData getWeatherIcon(String sky, bool isNight) {
+    if (sky == 'Thunderstorm') {
+      return Icons.thunderstorm;
+    } else if (sky == 'Drizzle') {
+      return Icons.grain;
+    } else if (sky == 'Rain') {
+      return Icons.water_drop;
+    } else if (sky == 'Snow') {
+      return Icons.ac_unit;
+    } else if (sky == 'Clear' && isNight) {
+      return Icons.nightlight_round;
+    } else if (sky == 'Clear') {
+      return Icons.wb_sunny;
+    } else if (sky == 'Clouds') {
+      return Icons.cloud;
+    } else if (sky == 'Mist' ||
+        sky == 'Fog' ||
+        sky == 'Haze' ||
+        sky == 'Smoke' ||
+        sky == 'Dust' ||
+        sky == 'Sand' ||
+        sky == 'Ash') {
+      return Icons.blur_on;
+    } else {
+      return Icons.wb_cloudy;
+    }
   }
 
   /// 📍 GET CURRENT LOCATION
@@ -115,7 +146,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       throw e.toString();
     }
   }
-  Future<void> loadSavedCity() async {
+
+  /// 💾 LOAD SAVED CITY AND WEATHER
+  Future<Map<String, dynamic>> loadWeather() async {
     final prefs = await SharedPreferences.getInstance();
 
     final savedCity = prefs.getString('last_city');
@@ -124,18 +157,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
       cityName = savedCity;
     }
 
-    weather = getCurrentweather();
+    return getCurrentweather();
+  }
 
-    if (mounted) {
-      setState(() {});
-    }
-  }@override
+  @override
   void initState() {
     super.initState();
 
-    weather = getCurrentweather();
-
-    loadSavedCity();
+    weather = loadWeather();
   }
 
   @override
@@ -153,7 +182,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           IconButton(
             onPressed: () {
               setState(() {
-                weather = getCurrentweather();
+                if (usingCurrentLocation) {
+                  weather = getWeatherByLocation();
+                } else {
+                  weather = getCurrentweather();
+                }
               });
             },
             icon: const Icon(Icons.refresh),
@@ -173,7 +206,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment:
+                MainAxisAlignment.center,
                 children: [
                   const Icon(
                     Icons.cloud_off,
@@ -196,7 +230,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        weather = getCurrentweather();
+                        if (usingCurrentLocation) {
+                          weather =
+                              getWeatherByLocation();
+                        } else {
+                          weather =
+                              getCurrentweather();
+                        }
                       });
                     },
                     icon: const Icon(Icons.refresh),
@@ -217,12 +257,20 @@ class _WeatherScreenState extends State<WeatherScreen> {
           final currentTemp =
           currentWeatherData['main']['temp'];
 
+          final feelsLike =
+          currentWeatherData['main']['feels_like'];
+
           final currentSky =
           currentWeatherData['weather'][0]['main'];
 
+          final currentDescription =
+          currentWeatherData['weather'][0]
+          ['description'];
+
           final currentTime = DateTime.now();
 
-          final isNight = isNightByTime(currentTime);
+          final isNight =
+          isNightByTime(currentTime);
 
           final currentPressure =
           currentWeatherData['main']['pressure'];
@@ -234,24 +282,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
           currentWeatherData['wind']['speed'];
 
           /// 🌤 CURRENT WEATHER ICON
-          IconData weatherIcon;
-
-          if (currentSky == 'Clouds') {
-            weatherIcon = Icons.cloud;
-          } else if (currentSky == 'Rain') {
-            weatherIcon = Icons.beach_access;
-          } else if (currentSky == 'Clear' && isNight) {
-            weatherIcon = Icons.nightlight_round;
-          } else if (currentSky == 'Clear') {
-            weatherIcon = Icons.wb_sunny;
-          } else {
-            weatherIcon = Icons.wb_cloudy;
-          }
+          final IconData weatherIcon =
+          getWeatherIcon(
+            currentSky,
+            isNight,
+          );
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
                 /// 🔎 SEARCH CITY
                 Row(
@@ -280,6 +321,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                               setState(() {
                                 cityName = value;
+                                usingCurrentLocation =
+                                false;
                                 weather =
                                     getCurrentweather();
                               });
@@ -299,6 +342,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                           setState(() {
                             cityName = value.trim();
+                            usingCurrentLocation =
+                            false;
                             weather =
                                 getCurrentweather();
                           });
@@ -314,12 +359,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       tooltip: 'Use my location',
                       onPressed: () {
                         setState(() {
+                          usingCurrentLocation = true;
                           weather =
                               getWeatherByLocation();
                         });
                       },
-                      icon:
-                      const Icon(Icons.my_location),
+                      icon: const Icon(
+                        Icons.my_location,
+                      ),
                     ),
                   ],
                 ),
@@ -367,16 +414,30 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   FontWeight.bold,
                                 ),
                               ),
+
                               const SizedBox(height: 10),
+
                               Icon(
                                 weatherIcon,
                                 size: 64,
                               ),
+
                               const SizedBox(height: 10),
+
                               Text(
-                                currentSky,
+                                currentDescription
+                                    .toString(),
                                 style: const TextStyle(
                                   fontSize: 20,
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              Text(
+                                'Feels like ${feelsLike.round()}°C',
+                                style: const TextStyle(
+                                  fontSize: 16,
                                 ),
                               ),
                             ],
@@ -389,9 +450,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                 const SizedBox(height: 50),
 
-                /// 🕐 HOURLY FORECAST
+                /// 🕐 3-HOUR FORECAST
                 const Text(
-                  'Hourly Forecast',
+                  '3-Hour Forecast',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -403,7 +464,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 SizedBox(
                   height: 120,
                   child: ListView.builder(
-                    itemCount: 5,
+                    itemCount:
+                    data['list'].length > 1
+                        ? (data['list'].length - 1)
+                        .clamp(0, 5)
+                        : 0,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
                       final hourlyForecast =
@@ -420,24 +485,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       final isNight =
                       isNightByTime(time);
 
-                      IconData hourlyIcon;
-
-                      if (sky == 'Clouds') {
-                        hourlyIcon = Icons.cloud;
-                      } else if (sky == 'Rain') {
-                        hourlyIcon =
-                            Icons.beach_access;
-                      } else if (sky == 'Clear' &&
-                          isNight) {
-                        hourlyIcon =
-                            Icons.nightlight_round;
-                      } else if (sky == 'Clear') {
-                        hourlyIcon =
-                            Icons.wb_sunny;
-                      } else {
-                        hourlyIcon =
-                            Icons.wb_cloudy;
-                      }
+                      final IconData hourlyIcon =
+                      getWeatherIcon(
+                        sky,
+                        isNight,
+                      );
 
                       return HourlyForecastItem(
                         time:
@@ -477,7 +529,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       icon: Icons.air,
                       label: 'Wind Speed',
                       value:
-                      '$currentWindSpeed m/s',
+                      '${currentWindSpeed.toStringAsFixed(1)} m/s',
                     ),
                     Addinfo(
                       icon: Icons.beach_access,
