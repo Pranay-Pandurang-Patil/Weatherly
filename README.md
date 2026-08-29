@@ -90,9 +90,3 @@ Possible future improvements include:
 **Pranay Pandurang Patil**
 
 [GitHub Profile](https://github.com/Pranay-Pandurang-Patil/Weatherly)
-
-## 📄 License
-
-This project is created for learning and portfolio purposes.
-
-This is the complete README.md content. Copy the entire single block into README.md.
