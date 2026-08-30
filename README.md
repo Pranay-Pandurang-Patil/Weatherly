@@ -81,9 +81,8 @@ Possible future improvements include:
 - Advanced weather animations
 - Extended forecast
 - Weather alerts
-- Weather radar
 - Additional UI themes
-- More detailed weather statistics
+
 
 ## 👨‍💻 Author
 
