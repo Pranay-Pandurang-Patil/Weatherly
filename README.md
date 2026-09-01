@@ -138,11 +138,15 @@ Weatherly was created as a Flutter learning project to practice:
 
 Weatherly provides weather information through a clean and simple interface designed for quick access to important weather details.
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
-**Pranay Pandurang Patil**
+**Pranay P Patil**
 
-GitHub: **Pranay-Pandurang-Patil**
+Computer Science & Engineering (CSE) Student
+
+KLS Gogte Institute of Technology, Belgaum
+
+GitHub: https://github.com/Pranay-Pandurang-Patil
 
 ## 🙏 Acknowledgements
 
