@@ -1,91 +1,117 @@
-# 🌦️ Weatherly
+# Weatherly 🌤️
 
-A clean and modern Flutter weather application that provides real-time weather information using the OpenWeather API.
+A simple and modern weather application built with Flutter that provides current weather information and hourly forecasts using the OpenWeather API.
 
-Weatherly started as my first Flutter application and was enhanced into a simple, responsive, and visually polished weather app with dynamic weather backgrounds and animations.
+## 📱 Screenshots
+
+<p align="center">
+  <img src="screenshots/weatherly-main.png" width="300" alt="Weatherly Main Screen">
+</p>
 
 ## ✨ Features
 
 - 🌡️ Current temperature
 - 🌤️ Current weather condition
-- 🌡️ Feels-like temperature
-- 🔎 Search weather by city
-- 📍 Current location weather
+- 📍 Location-based weather information
+- 🕐 Hourly weather forecast
+- 💧 Humidity information
+- 💨 Wind speed information
+- 🌡️ Atmospheric pressure
 - 🔄 Refresh weather data
-- 💾 Remember last searched city
-- 🕒 3-hour forecast
-- 💧 Humidity
-- 💨 Wind speed
-- 🎚️ Atmospheric pressure
-- 🌙 Day/night weather handling
-- 🎨 Dynamic weather backgrounds
-- ✨ Animated weather effects
-- ⚠️ Error handling and retry option
-- 📱 Responsive mobile UI
-    
+- ⏳ Loading state
+- ⚠️ Error handling
+- 📱 Responsive Flutter UI
+
 ## 🛠️ Tech Stack
 
-- Flutter
-- Dart
-- OpenWeather API
-- HTTP
-- Geolocator
-- Shared Preferences
-- Intl
+- **Flutter**
+- **Dart**
+- **OpenWeather API**
+- **HTTP / REST API**
+- **Material Design**
 
-## 🌦️ Weather Visualization
+## 📂 Project Structure
 
-Weatherly dynamically changes its visual appearance based on the current weather and time.
+```text
+lib/
+├── main.dart
+├── weather_screen.dart
+├── addinfo.dart
+└── hourinfo.dart
 
-| Condition | Experience |
-|---|---|
-| ☀️ Clear Day | Bright daytime background with sun glow |
-| ☁️ Cloudy | Soft cloudy background |
-| 🌧️ Rain | Rain-themed background with animation |
-| ❄️ Snow | Snow-themed background with falling particles |
-| ⛈️ Thunderstorm | Dark storm background with lightning |
-| 🌙 Night | Dark nighttime background with animated stars |
+screenshots/
+└── weatherly-main.png
 
-## 🔐 API Key Security
+🚀 Getting Started
+Prerequisites
 
-The OpenWeather API key is stored locally in:
+Make sure you have the following installed:
 
-lib/secrets.dart
+Flutter SDK
+Dart SDK
+Android Studio or VS Code
+Android device or emulator
+OpenWeather API key
+1. Clone the Repository
+git clone https://github.com/Pranay-Pandurang-Patil/Weatherly.git
+2. Navigate to the Project
+cd Weatherly
+3. Install Dependencies
+flutter pub get
+4. Configure the API Key
 
-The secrets.dart file is excluded from Git using .gitignore.
+Add your OpenWeather API key to the project configuration.
 
-Never commit your API key to a public repository.
+Important: Do not commit your API key or other secrets to GitHub.
 
-## 🎯 Project Goals
+5. Run the Application
+flutter run
+📦 Build APK
 
-Weatherly was built to practice and demonstrate:
+To generate a release APK:
 
-- Flutter application development
-- Dart programming
-- REST API integration
-- JSON data handling
-- Location services
-- Local data persistence
-- Asynchronous programming
-- Responsive UI design
-- Flutter animations
-- Error handling
-- Git and GitHub workflow
+flutter build apk --release
 
-## 🔮 Future Improvements
+The generated APK will be available at:
 
-The current version intentionally keeps Weatherly simple.
+build/app/outputs/flutter-apk/app-release.apk
+🔐 API
 
-Possible future improvements include:
+Weatherly uses the OpenWeather API to retrieve weather information.
 
-- Advanced weather animations
-- Extended forecast
-- Weather alerts
-- Additional UI themes
+You can get an API key from:
 
+https://openweathermap.org/api
 
-## 👨‍💻 Author
+🎯 Purpose
 
-**Pranay Pandurang Patil**
+Weatherly was created as a Flutter learning project to practice:
 
-[GitHub Profile](https://github.com/Pranay-Pandurang-Patil/Weatherly)
+Flutter UI development
+Dart programming
+REST API integration
+JSON data handling
+Asynchronous programming
+Error and loading state management
+Mobile application development
+📸 Project Preview
+
+The application provides weather information through a clean, simple interface designed for quick access to important weather details.
+
+👨‍💻 Author
+
+Pranay Pandurang Patil
+
+GitHub:
+https://github.com/Pranay-Pandurang-Patil
+
+⭐ Acknowledgements
+Flutter
+Dart
+OpenWeather API
+
+If you find this project useful, consider giving the repository a ⭐ on GitHub.
+
+### One important thing
+
+Since your repository is public, **do not put the actual OpenWeather API key in this README or anywhere committed to GitHub**. Your current `screenshots/weatherly-main.png` structure is perfectly fine for the README.
