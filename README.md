@@ -75,15 +75,38 @@ flutter pub get
 
 ### 4. Configure the API Key
 
-Add your OpenWeather API key to the appropriate project configuration.
+Weatherly requires an OpenWeather API key to retrieve weather data.
 
-> **Important:** Never commit your API key or other sensitive credentials to GitHub.
+1. Create an account on OpenWeather.
+2. Generate your API key.
+3. Create the following file:
+
+```text
+lib/secrets.dart
+```
+
+4. Add your API key to `secrets.dart` according to the configuration expected by the project.
+5. Make sure `secrets.dart` is included in `.gitignore`.
+
+> **Important:** Do not commit your API key or `secrets.dart` to a public repository.
 
 ### 5. Run the Application
 
 ```bash
 flutter run
 ```
+
+## 🔐 API
+
+Weatherly uses the **OpenWeather API** to retrieve current weather and forecast information.
+
+You can get an API key from the OpenWeather website.
+
+### Why is the API key not included?
+
+The API key is not included in this repository because it is a private credential and should not be publicly shared.
+
+Each user should use their own OpenWeather API key when running the project.
 
 ## 📦 Build APK
 
@@ -98,16 +121,6 @@ The generated APK will be available at:
 ```text
 build/app/outputs/flutter-apk/app-release.apk
 ```
-
-## 🔐 API
-
-Weatherly uses the **OpenWeather API** to retrieve weather information.
-
-API provider:
-
-https://openweathermap.org/api
-
-> **Security Note:** API keys should be stored securely and should not be committed to a public repository.
 
 ## 🎯 Purpose
 
@@ -129,15 +142,13 @@ Weatherly provides weather information through a clean and simple interface desi
 
 **Pranay Pandurang Patil**
 
-GitHub:
-
-https://github.com/Pranay-Pandurang-Patil/Weatherly
+GitHub: **Pranay-Pandurang-Patil**
 
 ## 🙏 Acknowledgements
 
-- [Flutter](https://flutter.dev/)
-- [Dart](https://dart.dev/)
-- [OpenWeather](https://openweathermap.org/)
+- Flutter
+- Dart
+- OpenWeather API
 
 ---
 
