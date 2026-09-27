@@ -53,7 +53,7 @@ Make sure you have the following installed:
 - Dart SDK
 - Android Studio or VS Code
 - Android device or emulator
-- OpenWeather API key
+- OpenWeather API key(own)
 
 ### 1. Clone the Repository
 
