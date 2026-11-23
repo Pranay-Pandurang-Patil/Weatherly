@@ -142,9 +142,7 @@ Weatherly provides weather information through a clean and simple interface desi
 
 **Pranay P Patil**
 
-Computer Science & Engineering (CSE) Student
-
-KLS Gogte Institute of Technology, Belgaum
+Computer Science & Engineering (CSE) Student at KLS Gogte Institute of Technology, Belgaum
 
 GitHub: https://github.com/Pranay-Pandurang-Patil
 
